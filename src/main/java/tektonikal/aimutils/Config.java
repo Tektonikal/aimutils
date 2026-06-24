@@ -18,9 +18,9 @@ public class Config {
 					.setPath(FabricLoader.getInstance().getConfigDir().resolve("aimutils.json"))
 					.build()).build();
 	@SerialEntry
-	public double minRandomSens;
+	public double minRandomSens = 0.25d;
 	@SerialEntry
-	public double maxRandomSens;
+	public double maxRandomSens = 0.75d;
 
 	public static Random rand = new Random();
 
@@ -43,7 +43,7 @@ public class Config {
 						.group(OptionGroup.createBuilder()
 								.name(Text.of("Precise Sensitivity"))
 								.option(Option.<Double>createBuilder()
-										.name(Text.of("Precise Sensitivity Input"))
+										.name(Text.of("Precise Sensitivity Value"))
 										.description(OptionDescription.of(Text.of("Range [0, 1] corresponds to in-game [0%, 200%]. Do not worry about the value being rounded to the nearest 0.005, it actually gets applied!")))
 										.controller(doubleOption -> DoubleFieldControllerBuilder.create(doubleOption).min(0d).max(1d).formatValue(value -> Text.of(String.format("%.1f", value * 200d) + "%")))
 										.binding(Binding.minecraft(MinecraftClient.getInstance().options.getMouseSensitivity()))
