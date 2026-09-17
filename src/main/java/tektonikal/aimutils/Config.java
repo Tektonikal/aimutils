@@ -24,6 +24,8 @@ public class Config {
     public double minRandomSens = 0.25d;
     @SerialEntry
     public double maxRandomSens = 0.75d;
+	@SerialEntry
+	public boolean useCm360 = false;
     @SerialEntry
     public boolean linearSens = false;
     @SerialEntry
@@ -90,18 +92,23 @@ public class Config {
                                         .stateManager(StateManager.createInstant(false, () -> CONFIG.instance().linearSens, newVal -> CONFIG.instance().linearSens = newVal))
                                         .controller(TickBoxControllerBuilderImpl::new)
                                         .build())
+		                        .option(Option.<Boolean>createBuilder()
+				                        .name(Text.of("Use Cm/360"))
+				                        .stateManager(StateManager.createInstant(false, () -> CONFIG.instance().useCm360, newVal -> CONFIG.instance().useCm360 = newVal))
+				                        .controller(TickBoxControllerBuilderImpl::new)
+				                        .build())
                                 .option(Option.<Integer>createBuilder()
-                                        .name(Text.of("Mouse DPI"))
+                                        .name(Text.of("- Mouse DPI"))
                                         .controller(doubleOption -> IntegerFieldControllerBuilder.create(doubleOption).min(200).max(20000))
                                         .stateManager(StateManager.createInstant(800, () -> CONFIG.instance().mouseDPI, newVal -> CONFIG.instance().mouseDPI = newVal))
                                         .build())
                                 .option(Option.<Double>createBuilder()
-                                        .name(Text.of("Target cm/360"))
+                                        .name(Text.of("- Target cm/360"))
                                         .controller(doubleOption -> DoubleFieldControllerBuilder.create(doubleOption).min(0d).max(100d).formatValue(value -> Text.of(String.format("%.2f", value))))
                                         .stateManager(StateManager.createInstant(40d, () -> CONFIG.instance().targetCM360, newVal -> CONFIG.instance().targetCM360 = newVal))
                                         .build())
                                 .option(ButtonOption.createBuilder()
-                                        .name(Text.of("Apply cm/360"))
+                                        .name(Text.of("- Apply cm/360"))
                                         .text(Text.of("Apply"))
                                         .action((yaclScreen, buttonOption) -> {
                                             o_sens.stateManager().set(getCm360());

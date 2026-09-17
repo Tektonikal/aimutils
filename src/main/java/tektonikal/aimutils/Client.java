@@ -13,30 +13,32 @@ import net.minecraft.server.command.CommandManager;
 
 
 public class Client implements ClientModInitializer {
-    boolean yeah;
+	boolean yeah;
 
-    @Override
-    public void onInitializeClient() {
-        CONFIG.load();
-        ClientLifecycleEvents.CLIENT_STARTED.register((client) -> {
-            client.options.getMouseSensitivity().setValue(Config.getCm360());
-        });
-        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
-            dispatcher.register(CommandManager.literal("sens").executes(context -> {
-                yeah = true;
-                return 1;
-            }));
-            dispatcher.register(CommandManager.literal("randomizesens").executes(context -> {
-                MinecraftClient.getInstance().options.getMouseSensitivity().setValue(SafeRandom(CONFIG.instance().minRandomSens, CONFIG.instance().maxRandomSens));
-                return 1;
-            }));
-        });
-        ClientTickEvents.END_CLIENT_TICK.register(mc -> {
-            if (yeah) {
-                MinecraftClient client = MinecraftClient.getInstance();
-                client.setScreen(Config.getConfigScreen(client.currentScreen));
-                yeah = false;
-            }
-        });
-    }
+	@Override
+	public void onInitializeClient() {
+		CONFIG.load();
+		ClientLifecycleEvents.CLIENT_STARTED.register((client) -> {
+			if (CONFIG.instance().useCm360) {
+				client.options.getMouseSensitivity().setValue(Config.getCm360());
+			}
+		});
+		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+			dispatcher.register(CommandManager.literal("sens").executes(context -> {
+				yeah = true;
+				return 1;
+			}));
+			dispatcher.register(CommandManager.literal("randomizesens").executes(context -> {
+				MinecraftClient.getInstance().options.getMouseSensitivity().setValue(SafeRandom(CONFIG.instance().minRandomSens, CONFIG.instance().maxRandomSens));
+				return 1;
+			}));
+		});
+		ClientTickEvents.END_CLIENT_TICK.register(mc -> {
+			if (yeah) {
+				MinecraftClient client = MinecraftClient.getInstance();
+				client.setScreen(Config.getConfigScreen(client.currentScreen));
+				yeah = false;
+			}
+		});
+	}
 }
