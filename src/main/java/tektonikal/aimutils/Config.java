@@ -2,6 +2,7 @@ package tektonikal.aimutils;
 
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.DoubleFieldControllerBuilder;
+import dev.isxander.yacl3.api.controller.DoubleSliderControllerBuilder;
 import dev.isxander.yacl3.api.controller.IntegerFieldControllerBuilder;
 import dev.isxander.yacl3.config.v2.api.ConfigClassHandler;
 import dev.isxander.yacl3.config.v2.api.SerialEntry;
@@ -13,6 +14,7 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.text.Text;
 
+import java.awt.*;
 import java.util.Random;
 
 public class Config {
@@ -32,6 +34,16 @@ public class Config {
     public int mouseDPI = 800;
     @SerialEntry
     public double targetCM360 = 40;
+	@SerialEntry
+	public double rightMult = 1;
+	@SerialEntry
+	public double leftMult = 1;
+	@SerialEntry
+	public double upMult = 1;
+	@SerialEntry
+	public double downMult = 1;
+	@SerialEntry
+	public boolean fixCrosshair = true;
 
     public static Random rand = new Random();
 
@@ -65,7 +77,7 @@ public class Config {
                                 .name(Text.of("Sensitivity Randomization"))
                                 .option(Option.<Double>createBuilder()
                                         .name(Text.of("Min Sensitivity"))
-                                        .description(OptionDescription.of(Text.of("Range [0, 1] corresponds to in-game [0%, 200%]. Gets rounded to the nearest 0.00001.")))
+                                        .description(OptionDescription.of(Text.of("Range [0, 1] corresponds to in-game [0%, 200%]. Gets rounded to the nearest 0.005.")))
                                         .controller(doubleOption -> DoubleFieldControllerBuilder.create(doubleOption).min(0d).max(1d).formatValue(value -> Text.of(String.format("%.1f", value * 200d) + "%")))
                                         .stateManager(StateManager.createInstant(0.25d, () -> CONFIG.instance().minRandomSens, newVal -> CONFIG.instance().minRandomSens = newVal))
                                         .build())
@@ -85,6 +97,29 @@ public class Config {
                                         })
                                         .build())
                                 .build())
+		                .group(OptionGroup.createBuilder()
+				                .name(Text.of("Sensitivity Multipliers"))
+				                .option(Option.<Double>createBuilder()
+						                .name(Text.of(" - Right"))
+						                .controller(doubleOption -> DoubleSliderControllerBuilder.create(doubleOption).range(0d, 2d).step(0.01).formatValue(value -> Text.of(String.format("%.2f", value) + "x")))
+						                .stateManager(StateManager.createInstant(1d, () -> CONFIG.instance().rightMult, newVal -> CONFIG.instance().rightMult = newVal))
+						                .build())
+				                .option(Option.<Double>createBuilder()
+						                .name(Text.of(" - Left"))
+						                .controller(doubleOption -> DoubleSliderControllerBuilder.create(doubleOption).range(0d, 2d).step(0.01).formatValue(value -> Text.of(String.format("%.2f", value) + "x")))
+						                .stateManager(StateManager.createInstant(1d, () -> CONFIG.instance().leftMult, newVal -> CONFIG.instance().leftMult = newVal))
+						                .build())
+				                .option(Option.<Double>createBuilder()
+						                .name(Text.of(" - Up"))
+						                .controller(doubleOption -> DoubleSliderControllerBuilder.create(doubleOption).range(0d, 2d).step(0.01).formatValue(value -> Text.of(String.format("%.2f", value) + "x")))
+						                .stateManager(StateManager.createInstant(1d, () -> CONFIG.instance().upMult, newVal -> CONFIG.instance().upMult = newVal))
+						                .build())
+				                .option(Option.<Double>createBuilder()
+						                .name(Text.of(" - Down"))
+						                .controller(doubleOption -> DoubleSliderControllerBuilder.create(doubleOption).range(0d, 2d).step(0.01).formatValue(value -> Text.of(String.format("%.2f", value) + "x")))
+						                .stateManager(StateManager.createInstant(1d, () -> CONFIG.instance().downMult, newVal -> CONFIG.instance().downMult = newVal))
+						                .build())
+				                .build())
                         .group(OptionGroup.createBuilder()
                                 .name(Text.of("Miscellaneous"))
                                 .option(Option.<Boolean>createBuilder()
@@ -92,6 +127,11 @@ public class Config {
                                         .stateManager(StateManager.createInstant(false, () -> CONFIG.instance().linearSens, newVal -> CONFIG.instance().linearSens = newVal))
                                         .controller(TickBoxControllerBuilderImpl::new)
                                         .build())
+		                        .option(Option.<Boolean>createBuilder()
+				                        .name(Text.of("Crosshair Alignment Fix"))
+				                        .stateManager(StateManager.createInstant(true, () -> CONFIG.instance().fixCrosshair, newVal -> CONFIG.instance().fixCrosshair = newVal))
+				                        .controller(TickBoxControllerBuilderImpl::new)
+				                        .build())
 		                        .option(Option.<Boolean>createBuilder()
 				                        .name(Text.of("Use Cm/360"))
 				                        .stateManager(StateManager.createInstant(false, () -> CONFIG.instance().useCm360, newVal -> CONFIG.instance().useCm360 = newVal))
