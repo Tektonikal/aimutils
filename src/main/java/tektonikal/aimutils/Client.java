@@ -1,15 +1,18 @@
 package tektonikal.aimutils;
 
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+//? if >=26.1 {
+import static net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal;
+//?} else {
+/*import static net.fabricmc.fabric.api.client.command.v2.ClientCommandManager.literal;
+*///?}
 
 import static tektonikal.aimutils.Config.CONFIG;
 import static tektonikal.aimutils.Config.SafeRandom;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.server.command.CommandManager;
+import net.minecraft.client.Minecraft;
 
 
 public class Client implements ClientModInitializer {
@@ -18,25 +21,25 @@ public class Client implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
 		CONFIG.load();
-		ClientLifecycleEvents.CLIENT_STARTED.register((client) -> {
-			if (CONFIG.instance().useCm360) {
-				client.options.getMouseSensitivity().setValue(Config.getCm360());
-			}
-		});
-		CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
-			dispatcher.register(CommandManager.literal("sens").executes(context -> {
+		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
+			dispatcher.register(literal("sens").executes(context -> {
 				yeah = true;
 				return 1;
 			}));
-			dispatcher.register(CommandManager.literal("randomizesens").executes(context -> {
-				MinecraftClient.getInstance().options.getMouseSensitivity().setValue(SafeRandom(CONFIG.instance().minRandomSens, CONFIG.instance().maxRandomSens));
+			dispatcher.register(literal("randomizesens").executes(context -> {
+				Minecraft.getInstance().options.sensitivity().set(SafeRandom(CONFIG.instance().minRandomSens, CONFIG.instance().maxRandomSens));
+				Minecraft.getInstance().options.save();
 				return 1;
 			}));
 		});
 		ClientTickEvents.END_CLIENT_TICK.register(mc -> {
 			if (yeah) {
-				MinecraftClient client = MinecraftClient.getInstance();
-				client.setScreen(Config.getConfigScreen(client.currentScreen));
+				Minecraft client = Minecraft.getInstance();
+				//? if >=26.2 {
+				client.gui.setScreen(Config.getConfigScreen(client.gui.screen()));
+				//?} else {
+				/*client.setScreen(Config.getConfigScreen(client.screen));
+				*///?}
 				yeah = false;
 			}
 		});

@@ -1,23 +1,24 @@
 package tektonikal.aimutils.mixin;
 
-import net.minecraft.client.MinecraftClient;
-import net.minecraft.client.Mouse;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.MouseHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import tektonikal.aimutils.Config;
 
-@Mixin(Mouse.class)
+@Mixin(MouseHandler.class)
 public class MouseMixin {
-	@Shadow private double cursorDeltaX;
+	@Shadow private double accumulatedDX;
 
-	@Shadow private double cursorDeltaY;
+	@Shadow private double accumulatedDY;
 
-	@ModifyVariable(method = "updateMouse", at = @At("STORE"), ordinal = 3)
+	@ModifyVariable(method = "turnPlayer", at = @At(value = "STORE", ordinal = 0), ordinal = 2)
     double yeah(double f){
-		cursorDeltaX = cursorDeltaX > 0 ? cursorDeltaX * Config.CONFIG.instance().rightMult : cursorDeltaX * Config.CONFIG.instance().leftMult;
-		cursorDeltaY = cursorDeltaY > 0 ? cursorDeltaY * Config.CONFIG.instance().downMult : cursorDeltaY * Config.CONFIG.instance().upMult;
-        return Config.CONFIG.instance().linearSens ? MinecraftClient.getInstance().options.getMouseSensitivity().getValue() : f;
+		accumulatedDX = accumulatedDX > 0 ? accumulatedDX * Config.CONFIG.instance().rightMult : accumulatedDX * Config.CONFIG.instance().leftMult;
+		accumulatedDY = accumulatedDY > 0 ? accumulatedDY * Config.CONFIG.instance().downMult : accumulatedDY * Config.CONFIG.instance().upMult;
+        //account for spyglass
+        return Config.CONFIG.instance().linearSens ? Minecraft.getInstance().options.sensitivity().get() / 8 : f;
     }
 }

@@ -1,0 +1,32 @@
+mod.id = "aimutils"
+mod.version = "1.3"
+
+deps.fabric_loader = "0.20.1"
+
+["1.21.11"]
+mod.mc_compat = "1.21.11"
+
+deps.fabric_api = "0.141.4+1.21.11"
+deps.yacl = "3.8.2+1.21.11-fabric"
+deps.modmenu = "17.0.1"
+
+["26.1.2"]
+mod.mc_compat = ">=26.1 <=26.1.2"
+
+deps.fabric_api = "0.155.3+26.1.2"
+deps.yacl = "3.9.7+26.1-fabric"
+deps.modmenu = "18.0.2"
+
+["26.2"]
+mod.mc_compat = "~26.2"
+
+deps.fabric_api = "0.161.0+26.2"
+deps.yacl = "3.9.7+26.2-fabric"
+deps.modmenu = "20.0.3"
+
+["26.3"]
+mod.mc_compat = "~26.3"
+
+deps.fabric_api = "0.165.0+26.3"
+deps.yacl = "3.9.7+26.3-fabric"
+deps.modmenu = "21.0.0"
