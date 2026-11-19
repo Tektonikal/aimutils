@@ -17,10 +17,12 @@ public final class SdlMenuCursor {
 	private static final Logger LOGGER = LogUtils.getLogger();
 	private static SDL_EventFilter watch;
 	private static boolean warping, failed;
+	private static int windowId;
 	private static double rawX = Double.NaN, rawY, cursorX, cursorY;
 
 	public static void install() {
 		if (watch != null) return;
+		windowId = SDLVideo.SDL_GetWindowID(Minecraft.getInstance().getWindow().handle());
 		watch = SDL_EventFilter.create((userdata, event) -> {
 			if (!failed) {
 				try {
@@ -42,9 +44,15 @@ public final class SdlMenuCursor {
 			motion.x((float) cursorX).y((float) cursorY).xrel(0).yrel(0);
 			return;
 		}
-		Window window = Minecraft.getInstance().getWindow();
+		//glup.. prevent deadlock
+		Minecraft mc = Minecraft.getInstance();
+		if (mc.mouseHandler.isMouseGrabbed()) {
+			rawX = Double.NaN;
+			return;
+		}
+		if (motion.windowID() != windowId) return;
+		Window window = mc.getWindow();
 		long handle = window.handle();
-		if (motion.windowID() != SDLVideo.SDL_GetWindowID(handle)) return;
 		double x = motion.x(), y = motion.y();
 		if (Config.menuCursorSupported == null) testAvailability(handle, x, y);
 		double mult = Config.menuCursorSupported == Boolean.TRUE ? Config.menuMultiplier(x, y) : 1;

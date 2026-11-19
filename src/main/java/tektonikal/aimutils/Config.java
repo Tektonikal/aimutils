@@ -63,7 +63,13 @@ public class Config {
 	}
 
 	public static void saveAll() {
+		Minecraft mc = Minecraft.getInstance();
+		//stop log spam
+		if (!mc.isSameThread()) {
+			mc.execute(Config::saveAll);
+			return;
+		}
 		CONFIG.save();
-		Minecraft.getInstance().options.save();
+		mc.options.save();
 	}
 }
