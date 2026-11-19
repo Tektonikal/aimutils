@@ -9,6 +9,6 @@ import net.fabricmc.api.Environment;
 public class ModMenuIntegration implements ModMenuApi {
 	@Override
 	public ConfigScreenFactory<?> getModConfigScreenFactory() {
-		return Config::getConfigScreen;
+		return ConfigScreen::create;
 	}
 }

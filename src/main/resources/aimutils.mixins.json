@@ -10,7 +10,6 @@
     "requireAnnotations": true
   },
   "client": [
-    "InGameHudMixin",
     "MouseMixin"
   ]
 }
