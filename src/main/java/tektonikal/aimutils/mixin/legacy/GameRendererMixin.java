@@ -3,11 +3,13 @@ package tektonikal.aimutils.mixin.legacy;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.render.GameRenderer;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import tektonikal.aimutils.legacy.LegacyClient;
+import tektonikal.aimutils.SensRandomizer;
 import tektonikal.aimutils.legacy.LegacyConfig;
 
 @Mixin(GameRenderer.class)
@@ -17,9 +19,13 @@ public class GameRendererMixin {
 		LegacyClient.onFrame();
 	}
 
+	@Unique private final SensRandomizer randomizer = new SensRandomizer();
+
 	@ModifyVariable(method = "render", at = @At(value = "STORE", ordinal = 0), ordinal = 2)
-	private float linear(float g) {
-		return LegacyConfig.INSTANCE.linearSens ? Minecraft.getInstance().options.mouseSensitivity : g;
+	private float sensitivity(float g) {
+		LegacyConfig config = LegacyConfig.INSTANCE;
+		float mult = config.linearSens ? Minecraft.getInstance().options.mouseSensitivity : g;
+		return mult * (float) randomizer.sample(System.nanoTime(), config.randomizerEnabled, config.randomizerMin, config.randomizerMax, config.randomizerFrequency, config.randomizerInterpolation);
 	}
 
 	@ModifyVariable(method = "render", at = @At(value = "STORE", ordinal = 0), ordinal = 3)

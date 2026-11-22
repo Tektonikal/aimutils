@@ -3,12 +3,14 @@ package tektonikal.aimutils;
 import dev.isxander.yacl3.api.*;
 import dev.isxander.yacl3.api.controller.DoubleFieldControllerBuilder;
 import dev.isxander.yacl3.api.controller.DoubleSliderControllerBuilder;
+import dev.isxander.yacl3.api.controller.EnumDropdownControllerBuilder;
 import dev.isxander.yacl3.api.controller.IntegerFieldControllerBuilder;
 import dev.isxander.yacl3.api.controller.TickBoxControllerBuilder;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 
+import java.util.Locale;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -43,8 +45,6 @@ public final class ConfigScreen {
 				.controller(doubleOption -> DoubleFieldControllerBuilder.create(doubleOption).min(Cm360.MIN).max(Cm360.MAX).formatValue(value -> Component.literal(String.format("%.2f", value))))
 				.stateManager(StateManager.createInstant(Cm360.fromSens(0.5d, o_dpi.pendingValue(), o_linear.pendingValue()), () -> savedCm360[0], newVal -> savedCm360[0] = newVal))
 				.build();
-		Option<Double> o_minRandom = randomLimitOption("aimutils.minRandom", defaults.minRandomSens, () -> CONFIG.instance().minRandomSens, newVal -> CONFIG.instance().minRandomSens = newVal);
-		Option<Double> o_maxRandom = randomLimitOption("aimutils.maxRandom", defaults.maxRandomSens, () -> CONFIG.instance().maxRandomSens, newVal -> CONFIG.instance().maxRandomSens = newVal);
 		Runnable cm360Changed = () -> {
 			if (syncing) return;
 			syncing = true;
@@ -81,14 +81,23 @@ public final class ConfigScreen {
 								.option(o_cm360)
 								.build())
 						.group(OptionGroup.createBuilder()
-								.name(Component.translatable("aimutils.group.random"))
-								.option(o_minRandom)
-								.option(o_maxRandom)
-								.option(ButtonOption.createBuilder()
-										.name(Component.translatable("aimutils.randomize"))
-										.text(Component.translatable("aimutils.randomize.button"))
-										.description(OptionDescription.of(Component.translatable("aimutils.randomize.description")))
-										.action((yaclScreen, buttonOption) -> o_sens.stateManager().set(Cm360.randomSens(o_minRandom.pendingValue(), o_maxRandom.pendingValue())))
+								.name(Component.translatable("aimutils.group.randomizer"))
+								.option(Option.<Boolean>createBuilder()
+										.name(Component.translatable("aimutils.randomizer.enabled"))
+										.controller(TickBoxControllerBuilder::create)
+										.stateManager(instant(defaults.randomizerEnabled, () -> CONFIG.instance().randomizerEnabled, newVal -> CONFIG.instance().randomizerEnabled = newVal))
+										.build())
+								.option(randomizerMultOption("aimutils.randomizer.min", defaults.randomizerMin, () -> CONFIG.instance().randomizerMin, newVal -> CONFIG.instance().randomizerMin = newVal))
+								.option(randomizerMultOption("aimutils.randomizer.max", defaults.randomizerMax, () -> CONFIG.instance().randomizerMax, newVal -> CONFIG.instance().randomizerMax = newVal))
+								.option(Option.<Double>createBuilder()
+										.name(Component.translatable("aimutils.randomizer.frequency"))
+										.controller(doubleOption -> DoubleFieldControllerBuilder.create(doubleOption).min(SensRandomizer.MIN_FREQUENCY).max(SensRandomizer.MAX_FREQUENCY).formatValue(value -> Component.literal(String.format("%.2f Hz", value))))
+										.stateManager(instant(defaults.randomizerFrequency, () -> CONFIG.instance().randomizerFrequency, newVal -> CONFIG.instance().randomizerFrequency = newVal))
+										.build())
+								.option(Option.<SensRandomizer.Interpolation>createBuilder()
+										.name(Component.translatable("aimutils.randomizer.interpolation"))
+										.controller(enumOption -> EnumDropdownControllerBuilder.create(enumOption).formatValue(value -> Component.translatable("aimutils.randomizer.interpolation." + value.name().toLowerCase(Locale.ROOT))))
+										.stateManager(instant(defaults.randomizerInterpolation, () -> CONFIG.instance().randomizerInterpolation, newVal -> CONFIG.instance().randomizerInterpolation = newVal))
 										.build())
 								.build())
 						.group(OptionGroup.createBuilder()
@@ -117,11 +126,10 @@ public final class ConfigScreen {
 		*///?}
 	}
 
-	private static Option<Double> randomLimitOption(String key, double def, Supplier<Double> getter, Consumer<Double> setter) {
+	private static Option<Double> randomizerMultOption(String key, double def, Supplier<Double> getter, Consumer<Double> setter) {
 		return Option.<Double>createBuilder()
 				.name(Component.translatable(key))
-				.description(OptionDescription.of(Component.translatable("aimutils.range.description")))
-				.controller(ConfigScreen::sensField)
+				.controller(doubleOption -> DoubleFieldControllerBuilder.create(doubleOption).min(SensRandomizer.MIN_MULT).max(SensRandomizer.MAX_MULT).formatValue(value -> Component.literal(String.format("%.2fx", value))))
 				.stateManager(instant(def, getter, setter))
 				.build();
 	}

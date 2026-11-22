@@ -5,12 +5,13 @@ import org.polyfrost.oneconfig.api.config.v1.Config;
 import org.polyfrost.oneconfig.api.config.v1.Property;
 import org.polyfrost.oneconfig.api.config.v1.Tree;
 import org.polyfrost.oneconfig.api.config.v1.ValueFormatter;
-import org.polyfrost.oneconfig.api.config.v1.annotations.Button;
+import org.polyfrost.oneconfig.api.config.v1.annotations.Dropdown;
 import org.polyfrost.oneconfig.api.config.v1.annotations.Number;
 import org.polyfrost.oneconfig.api.config.v1.annotations.Slider;
 import org.polyfrost.oneconfig.api.config.v1.annotations.Switch;
 import org.polyfrost.oneconfig.api.ui.v1.OptionWidgets;
 import tektonikal.aimutils.Cm360;
+import tektonikal.aimutils.SensRandomizer;
 
 public class LegacyConfig extends Config {
 	public static LegacyConfig INSTANCE;
@@ -23,10 +24,21 @@ public class LegacyConfig extends Config {
 	@Number(title = "aimutils.cm360", subcategory = "aimutils.group.cm360", min = (float) Cm360.MIN, max = (float) Cm360.MAX)
 	public float cm360 = (float) Cm360.fromSens(0.5, 800, false);
 
-	@Number(title = "aimutils.minRandom", description = "aimutils.range.description", subcategory = "aimutils.group.random", min = 0, max = 1, formatter = PlainFloat.class)
-	public float minRandomSens = 0.25f;
-	@Number(title = "aimutils.maxRandom", description = "aimutils.range.description", subcategory = "aimutils.group.random", min = 0, max = 1, formatter = PlainFloat.class)
-	public float maxRandomSens = 0.75f;
+	@Switch(title = "aimutils.randomizer.enabled", subcategory = "aimutils.group.randomizer")
+	public boolean randomizerEnabled = false;
+	@Number(title = "aimutils.randomizer.min", subcategory = "aimutils.group.randomizer", min = (float) SensRandomizer.MIN_MULT, max = (float) SensRandomizer.MAX_MULT)
+	public float randomizerMin = 0.5f;
+	@Number(title = "aimutils.randomizer.max", subcategory = "aimutils.group.randomizer", min = (float) SensRandomizer.MIN_MULT, max = (float) SensRandomizer.MAX_MULT)
+	public float randomizerMax = 2;
+	@Number(title = "aimutils.randomizer.frequency", subcategory = "aimutils.group.randomizer", unit = "Hz", min = (float) SensRandomizer.MIN_FREQUENCY, max = (float) SensRandomizer.MAX_FREQUENCY)
+	public float randomizerFrequency = 0.5f;
+	@Dropdown(title = "aimutils.randomizer.interpolation", subcategory = "aimutils.group.randomizer", options = {
+			"aimutils.randomizer.interpolation.step",
+			"aimutils.randomizer.interpolation.linear",
+			"aimutils.randomizer.interpolation.hermite",
+			"aimutils.randomizer.interpolation.quintic"
+	})
+	public SensRandomizer.Interpolation randomizerInterpolation = SensRandomizer.Interpolation.HERMITE;
 
 	@Slider(title = "aimutils.right", subcategory = "aimutils.group.multipliers", min = 0, max = 2, step = 0.01f)
 	public float rightMult = 1;
@@ -65,24 +77,11 @@ public class LegacyConfig extends Config {
 
 	@Override
 	protected void onInitialized(Tree tree) {
-		for (String option : new String[]{"sensitivity", "minRandomSens", "maxRandomSens"}) {
-			getProperty(option).addMetadata("step", 1e-6f);
-		}
+		getProperty("sensitivity").addMetadata("step", 1e-6f);
 	}
 
 	public static void init() {
 		if (INSTANCE == null) INSTANCE = new LegacyConfig();
-	}
-
-	@Button(title = "aimutils.randomize", text = "aimutils.randomize.button", description = "aimutils.randomize.description", subcategory = "aimutils.group.random")
-	private void randomize() {
-		Property<?> prop = getProperty("sensitivity");
-		prop.setAs(randomSens());
-		OptionWidgets.refresh(prop);
-	}
-
-	public static float randomSens() {
-		return (float) Cm360.randomSens(INSTANCE.minRandomSens, INSTANCE.maxRandomSens);
 	}
 
 	public void syncFromGame() {

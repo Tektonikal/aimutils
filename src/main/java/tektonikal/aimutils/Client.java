@@ -12,9 +12,6 @@ import static net.fabricmc.fabric.api.client.command.v2.ClientCommands.literal;
 
 import static tektonikal.aimutils.Config.CONFIG;
 
-import net.minecraft.client.Minecraft;
-
-
 public class Client implements ClientModInitializer {
 	private boolean openConfig;
 
@@ -24,11 +21,6 @@ public class Client implements ClientModInitializer {
 		ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) -> {
 			dispatcher.register(literal("sens").executes(context -> {
 				openConfig = true;
-				return 1;
-			}));
-			dispatcher.register(literal("randomizesens").executes(context -> {
-				Minecraft.getInstance().options.sensitivity().set(Cm360.randomSens(CONFIG.instance().minRandomSens, CONFIG.instance().maxRandomSens));
-				Minecraft.getInstance().options.save();
 				return 1;
 			}));
 		});
