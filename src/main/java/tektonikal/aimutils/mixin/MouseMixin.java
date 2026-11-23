@@ -4,9 +4,11 @@ import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import net.minecraft.client.MouseHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import tektonikal.aimutils.Cm360;
 import tektonikal.aimutils.Config;
+import tektonikal.aimutils.SensRandomizer;
 //? if <26.3 {
 /*import com.llamalad7.mixinextras.injector.wrapmethod.WrapMethod;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
@@ -14,7 +16,6 @@ import com.mojang.blaze3d.platform.Window;
 import net.minecraft.client.Minecraft;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWErrorCallback;
-import org.spongepowered.asm.mixin.Unique;
 import tektonikal.aimutils.IxerisCompat;
 *///?}
 
@@ -24,11 +25,14 @@ public class MouseMixin {
 
 	@Shadow private double accumulatedDY;
 
+	@Unique private final SensRandomizer randomizer = new SensRandomizer();
+
 	@ModifyExpressionValue(method = "turnPlayer", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/OptionInstance;get()Ljava/lang/Object;", ordinal = 0))
 	private Object sensitivity(Object sens) {
 		Config config = Config.CONFIG.instance();
-		accumulatedDX *= accumulatedDX > 0 ? config.rightMult : config.leftMult;
-		accumulatedDY *= accumulatedDY > 0 ? config.downMult : config.upMult;
+		double random = randomizer.sample(System.nanoTime(), config.randomizerEnabled, config.randomizerMin, config.randomizerMax, config.randomizerFrequency, config.randomizerInterpolation);
+		accumulatedDX *= random * (accumulatedDX > 0 ? config.rightMult : config.leftMult);
+		accumulatedDY *= random * (accumulatedDY > 0 ? config.downMult : config.upMult);
 		return config.linearSens ? Cm360.sensFor((Double) sens) : sens;
 	}
 

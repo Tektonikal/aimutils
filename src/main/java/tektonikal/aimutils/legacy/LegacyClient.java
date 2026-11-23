@@ -21,12 +21,6 @@ public class LegacyClient implements ClientModInitializer {
 			openConfig = true;
 			return 1;
 		}));
-		CommandManager.INSTANCE.register(CommandManager.literal("randomizesens").executes(context -> {
-			Minecraft mc = Minecraft.getInstance();
-			mc.options.mouseSensitivity = LegacyConfig.randomSens();
-			mc.options.save();
-			return 1;
-		}));
 		MinecraftClientEvents.STOP.register(mc -> mc.options.save());
 	}
 

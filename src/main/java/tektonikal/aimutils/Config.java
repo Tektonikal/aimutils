@@ -19,9 +19,15 @@ public class Config {
 	private static Screen lastScreen;
 
 	@SerialEntry
-	public double minRandomSens = 0.25d;
+	public boolean randomizerEnabled = false;
 	@SerialEntry
-	public double maxRandomSens = 0.75d;
+	public double randomizerMin = 0.5;
+	@SerialEntry
+	public double randomizerMax = 2;
+	@SerialEntry
+	public double randomizerFrequency = 0.5;
+	@SerialEntry
+	public SensRandomizer.Interpolation randomizerInterpolation = SensRandomizer.Interpolation.HERMITE;
 	@SerialEntry
 	public boolean linearSens = false;
 	@SerialEntry

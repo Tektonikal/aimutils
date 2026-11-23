@@ -39,10 +39,4 @@ public class Cm360 {
 	public static double scaleMove(double cursor, double delta, double mult, int size) {
 		return Math.clamp(cursor + delta * mult, 0, size - 1);
 	}
-
-	public static double randomSens(double min, double max) {
-		min = Math.clamp(min, 0d, 1d);
-		max = Math.clamp(max, 0d, 1d);
-		return min + Math.random() * (max - min);
-	}
 }
