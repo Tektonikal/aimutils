@@ -4,7 +4,7 @@
   "version": "${version}",
   "name": "Aim Utils",
   "description": "Utilities for aiming enthusiasts.",
-  "authors": ["Tektonikal"],
+  "authors": ["Tektonikal", "jnapr"],
   "contact": {
     "sources": "https://github.com/Tektonikal/aimutils",
     "issues": "https://github.com/Tektonikal/aimutils/issues"
